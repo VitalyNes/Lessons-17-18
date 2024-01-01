@@ -27,22 +27,17 @@ it("transfer() should correctly decrease sender's balance and increase recipient
   const VINCoin = await ethers.getContractFactory("VINCoin");
   const vinc = await VINCoin.deploy();
 
-  // Минула чеканка токенів у цьому тесті
   const initialMintAmount = ethers.parseEther("1000");
   await vinc.mint(owner.address, initialMintAmount);
 
-  // Отримання початкового балансу відправника та отримувача
   const initialOwnerBalance = await vinc.balanceOf(owner.address);
   const initialRecipientBalance = await vinc.balanceOf(recipient.address);
 
-  // Кількість токенів для переказу
   const transferAmount = ethers.parseEther("100");
   const transferTx = await vinc.connect(owner).transfer(recipient.address, transferAmount);
 
-  // Очікування на виконання транзакції
   await transferTx.wait();
 
-  // Отримання та порівняння балансів після переказу
   const finalOwnerBalance = await vinc.balanceOf(owner.address);
   const finalRecipientBalance = await vinc.balanceOf(recipient.address);
 
@@ -59,18 +54,14 @@ it("approve() should correctly change allowance of the recipient", async functio
   const VINCoin = await ethers.getContractFactory("VINCoin");
   const vinc = await VINCoin.deploy();
 
-  // Встановлення початкового дозволу
   const initialAllowance = ethers.parseEther("0");
   await vinc.connect(owner).approve(recipient.address, initialAllowance);
 
-  // Отримання початкового дозволу
   const initialRecipientAllowance = await vinc.allowance(owner.address, recipient.address);
 
-  // Встановлення нового дозволу
   const newAllowance = ethers.parseEther("100");
   await vinc.connect(owner).approve(recipient.address, newAllowance);
 
-  // Отримання та порівняння нового дозволу
   const finalRecipientAllowance = await vinc.allowance(owner.address, recipient.address);
 
   expect(finalRecipientAllowance).to.equal(newAllowance);
@@ -83,10 +74,10 @@ it("transferFrom() should correctly transfer tokens when allowance is given", as
   const VINCoin = await ethers.getContractFactory("VINCoin");
   const vinc = await VINCoin.deploy();
 
-  const initialMintAmount = ethers.parseEther("1000"); // Використовуйте utils.parseEther() для створення BigNumber
+  const initialMintAmount = ethers.parseEther("1000"); 
   await vinc.mint(sender.address, initialMintAmount);
 
-  const transferAmount = ethers.parseEther("100"); // Використовуйте utils.parseEther() для створення BigNumber
+  const transferAmount = ethers.parseEther("100"); 
   await vinc.connect(sender).approve(recipient.address, transferAmount);
 
   await vinc.connect(recipient).transferFrom(sender.address, recipient.address, transferAmount);
@@ -107,10 +98,10 @@ it("user without sufficient allowance cannot perform transferFrom of another use
   const vinc = await VINCoin.deploy();
 
   const mintAmount = ethers.parseEther("100");
-  await vinc.mint(sender.address, mintAmount); // Чеканення токенів для sender
+  await vinc.mint(sender.address, mintAmount); 
 
   const allowanceAmount = ethers.parseEther("10");
-  await vinc.connect(sender).approve(recipient.address, allowanceAmount); // Встановлення allowance
+  await vinc.connect(sender).approve(recipient.address, allowanceAmount); 
 
   const transferAmount = ethers.parseEther("20");
 
@@ -123,8 +114,8 @@ it("should correctly decrease user's balance after burn()", async function() {
   const VINCoin = await ethers.getContractFactory("VINCoin");
   const vinc = await VINCoin.deploy();
 
-  await vinc.mint(owner.address, ethers.parseEther("10000.0")); // Начеканення токенів для власника
-  await vinc.mint(user.address, ethers.parseEther("100")); // Начеканення токенів для користувача
+  await vinc.mint(owner.address, ethers.parseEther("10000.0")); 
+  await vinc.mint(user.address, ethers.parseEther("100")); 
 
   const initialBalance = await vinc.balanceOf(user.address);
 
@@ -137,14 +128,10 @@ it("should correctly decrease user's balance after burn()", async function() {
 
 // 7. owner смарт-контракту співпадає із користувачем, що завантажив контракт
 it("wner of the smart contract should match the address of the deployer", async function() {
-  // Розгортання контракту VINCoin
   const VINCoin = await ethers.getContractFactory("VINCoin");
   vinc = await VINCoin.deploy();
-    // Отримуємо адресу власника контракту
-    const contractOwner = await vinc.owner();
-
-    // Перевірка, що адреса власника контракту співпадає з адресою деплоєра
-    expect(contractOwner).to.equal(owner.address);
+  const contractOwner = await vinc.owner();
+  expect(contractOwner).to.equal(owner.address);
 });
 
 // 8. Тільки owner може чеканити нові токени
@@ -155,7 +142,6 @@ it("only owner can mint tokens", async function () {
 
   const mintAmount = ethers.parseEther("10000.0");
 
-  // Спроба owner чеканити токени
   await vinc.mint(owner.address, mintAmount);
 
   const ownerBalance = await vinc.balanceOf(owner.address);
@@ -166,16 +152,14 @@ it("only owner can mint tokens", async function () {
 
 //9. Інші користувачі не можуть чеканити нові токени
 it("Others can't mint tokens", async function () {
-  // Отримуємо кілька аккаунтів
+
   const [owner, other] = await ethers.getSigners();
   const VINCoin = await ethers.getContractFactory("VINCoin");
 
-  // Розгортаємо контракт з власника
   const vinc = await VINCoin.deploy();
 
   const mintAmount = ethers.parseEther("100.0");
 
-  // Спроба іншою адресою (не власником) чеканити токени
   await expect(vinc.connect(other).mint(other.address, mintAmount))
   .to.be.reverted;
 
@@ -187,16 +171,13 @@ it("Cannot mint tokens beyond cap", async function () {
   const VINCoin = await ethers.getContractFactory("VINCoin");
   const vinc = await VINCoin.deploy();
 
-  const cap = await vinc.cap(); // Отримати значення кап
+  const cap = await vinc.cap(); 
 
-  // Спробуємо чеканити токени більше, ніж кап
   const mintAmount = cap + (ethers.parseEther("1"));
 
-  // Очікуємо, що транзакція буде reverted з відповідним повідомленням
   await expect(vinc.connect(owner).mint(owner.address, mintAmount))
     .to.be.revertedWith("Cap exceeded");
 });
-
 
 });
 
