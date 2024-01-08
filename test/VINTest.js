@@ -127,7 +127,7 @@ it("should correctly decrease user's balance after burn()", async function() {
 });
 
 // 7. owner смарт-контракту співпадає із користувачем, що завантажив контракт
-it("wner of the smart contract should match the address of the deployer", async function() {
+it("Owner of the smart contract should match the address of the deployer", async function() {
   const VINCoin = await ethers.getContractFactory("VINCoin");
   vinc = await VINCoin.deploy();
   const contractOwner = await vinc.owner();
